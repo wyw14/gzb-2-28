@@ -1,0 +1,46 @@
+[
+  {
+    "id": "4f61ece3-5da9-4dbe-be1d-bee876380d4c",
+    "username": "aaa",
+    "email": "a@2.com",
+    "password": "$2a$10$p5.jzZJdixLHRkIY9LytcOcsb/RlP4x/GBNHfZFLWfufM3g.dcc/C",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=aaa",
+    "bio": "",
+    "rating": 5,
+    "reviewCount": 0,
+    "exchangeCount": 0,
+    "skillPoints": 0,
+    "preferences": {
+      "location": {
+        "city": "",
+        "province": ""
+      },
+      "time": [],
+      "onlinePreference": "both"
+    },
+    "skillTree": [],
+    "createdAt": "2026-06-04T07:18:28.236Z"
+  },
+  {
+    "id": "022adda7-120a-46fc-8612-43d194b775de",
+    "username": "测试用户",
+    "email": "test@example.com",
+    "password": "$2a$10$W4tMExSN4niXnpu5s2NXdOyjJKOjd2Lt/jRQpsKVUXI3VHXEx5Eiy",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=测试用户",
+    "bio": "",
+    "rating": 5,
+    "reviewCount": 0,
+    "exchangeCount": 0,
+    "skillPoints": 0,
+    "preferences": {
+      "location": {
+        "city": "",
+        "province": ""
+      },
+      "time": [],
+      "onlinePreference": "both"
+    },
+    "skillTree": [],
+    "createdAt": "2026-06-04T07:32:50.596Z"
+  }
+]

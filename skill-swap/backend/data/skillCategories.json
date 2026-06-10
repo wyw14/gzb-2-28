@@ -1,0 +1,12 @@
+[
+  {"id": "programming", "name": "编程开发", "icon": "💻"},
+  {"id": "language", "name": "语言学习", "icon": "🌍"},
+  {"id": "music", "name": "音乐艺术", "icon": "🎵"},
+  {"id": "design", "name": "设计创意", "icon": "🎨"},
+  {"id": "cooking", "name": "烹饪美食", "icon": "🍳"},
+  {"id": "fitness", "name": "健身运动", "icon": "💪"},
+  {"id": "business", "name": "商业金融", "icon": "📊"},
+  {"id": "photo", "name": "摄影摄像", "icon": "📷"},
+  {"id": "writing", "name": "写作编辑", "icon": "✍️"},
+  {"id": "other", "name": "其他技能", "icon": "✨"}
+]
