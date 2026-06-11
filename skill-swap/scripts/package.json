@@ -1,0 +1,9 @@
+{
+  "name": "skill-swap-scripts",
+  "version": "1.0.0",
+  "description": "Build and deployment scripts for Skill Swap",
+  "private": true,
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  }
+}

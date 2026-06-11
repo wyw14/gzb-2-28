@@ -1,0 +1,44 @@
+{
+  "name": "skill-swap",
+  "version": "1.0.0",
+  "description": "Skill Swap Community Platform",
+  "private": true,
+  "scripts": {
+    "install:all": "npm run install:backend && npm run install:frontend && npm run install:scripts",
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "install:scripts": "cd scripts && npm init -y && npm install dotenv",
+    
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && cross-env NODE_ENV=development npm run dev",
+    "dev:frontend": "cd frontend && npm run dev -- --mode development",
+    
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd backend && cross-env NODE_ENV=production npm start",
+    "start:frontend": "cd frontend && npm run build && npm run preview -- --mode production",
+    
+    "build": "cd frontend && npm run build -- --mode production",
+    "build:test": "cd frontend && npm run build -- --mode test",
+    "build:dev": "cd frontend && npm run build -- --mode development",
+    
+    "check:config": "node scripts/check-config.js",
+    "check:config:dev": "node scripts/check-config.js development",
+    "check:config:test": "node scripts/check-config.js test",
+    "check:config:prod": "node scripts/check-config.js production",
+    
+    "check:api": "node scripts/check-api.js",
+    
+    "pre-release": "node scripts/pre-release.js",
+    "pre-release:dev": "node scripts/pre-release.js development",
+    "pre-release:test": "node scripts/pre-release.js test",
+    "pre-release:prod": "node scripts/pre-release.js production",
+    
+    "release:test": "npm run pre-release:test && npm run build:test",
+    "release:prod": "npm run pre-release:prod && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.3.1"
+  }
+}

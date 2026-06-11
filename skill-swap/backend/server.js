@@ -3,12 +3,21 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', `.env.${process.env.NODE_ENV || 'development'}`) });
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+
 const { readJson, writeJson } = require('./utils/storage');
 const { findMatchesForUser } = require('./utils/matching');
 
 const app = express();
-const PORT = 3110;
-const JWT_SECRET = 'skill-swap-secret-key-2024';
+const PORT = parseInt(process.env.BACKEND_PORT) || 3110;
+const JWT_SECRET = process.env.JWT_SECRET || 'skill-swap-secret-key-2024';
+const API_PREFIX = process.env.API_PREFIX || '/api';
+
+if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+  console.warn('WARNING: JWT_SECRET is not set in production environment!');
+}
 
 app.use(cors());
 app.use(express.json());
@@ -27,7 +36,7 @@ function authMiddleware(req, res, next) {
   }
 }
 
-app.post('/api/auth/register', (req, res) => {
+app.post(`${API_PREFIX}/auth/register`, (req, res) => {
   const { username, email, password } = req.body;
 
   if (!username || !email || !password) {
@@ -81,7 +90,7 @@ app.post('/api/auth/register', (req, res) => {
   res.json({ token, user: userWithoutPassword });
 });
 
-app.post('/api/auth/login', (req, res) => {
+app.post(`${API_PREFIX}/auth/login`, (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -100,7 +109,7 @@ app.post('/api/auth/login', (req, res) => {
   res.json({ token, user: userWithoutPassword });
 });
 
-app.get('/api/auth/me', authMiddleware, (req, res) => {
+app.get(`${API_PREFIX}/auth/me`, authMiddleware, (req, res) => {
   const users = readJson('users.json');
   const user = users.find(u => u.id === req.user.id);
   if (!user) {
@@ -110,7 +119,7 @@ app.get('/api/auth/me', authMiddleware, (req, res) => {
   res.json(userWithoutPassword);
 });
 
-app.put('/api/users/profile', authMiddleware, (req, res) => {
+app.put(`${API_PREFIX}/users/profile`, authMiddleware, (req, res) => {
   const users = readJson('users.json');
   const userIndex = users.findIndex(u => u.id === req.user.id);
   if (userIndex === -1) {
@@ -123,7 +132,7 @@ app.put('/api/users/profile', authMiddleware, (req, res) => {
   res.json(userWithoutPassword);
 });
 
-app.get('/api/skills', authMiddleware, (req, res) => {
+app.get(`${API_PREFIX}/skills`, authMiddleware, (req, res) => {
   const skills = readJson('skills.json');
   const { category, type, userId } = req.query;
   let filtered = skills;
@@ -141,7 +150,7 @@ app.get('/api/skills', authMiddleware, (req, res) => {
   res.json(filtered);
 });
 
-app.post('/api/skills', authMiddleware, (req, res) => {
+app.post(`${API_PREFIX}/skills`, authMiddleware, (req, res) => {
   const { name, category, type } = req.body;
 
   if (!name || !category || !type) {
@@ -178,14 +187,14 @@ app.put('/api/skills/:id', authMiddleware, (req, res) => {
   res.json(skills[skillIndex]);
 });
 
-app.delete('/api/skills/:id', authMiddleware, (req, res) => {
+app.delete(`${API_PREFIX}/skills/:id`, authMiddleware, (req, res) => {
   const skills = readJson('skills.json');
   const filtered = skills.filter(s => !(s.id === req.params.id && s.userId === req.user.id));
   writeJson('skills.json', filtered);
   res.json({ success: true });
 });
 
-app.get('/api/matches', authMiddleware, (req, res) => {
+app.get(`${API_PREFIX}/matches`, authMiddleware, (req, res) => {
   const users = readJson('users.json');
   const skills = readJson('skills.json');
   const { minScore, category } = req.query;
@@ -205,7 +214,7 @@ app.get('/api/matches', authMiddleware, (req, res) => {
   res.json(matches);
 });
 
-app.get('/api/messages/:userId', authMiddleware, (req, res) => {
+app.get(`${API_PREFIX}/messages/:userId`, authMiddleware, (req, res) => {
   const messages = readJson('messages.json');
   const { userId } = req.params;
   const myId = req.user.id;
@@ -225,7 +234,7 @@ app.get('/api/messages/:userId', authMiddleware, (req, res) => {
   res.json(conversation);
 });
 
-app.post('/api/messages', authMiddleware, (req, res) => {
+app.post(`${API_PREFIX}/messages`, authMiddleware, (req, res) => {
   const { receiverId, content } = req.body;
 
   if (!receiverId || !content) {
@@ -249,7 +258,7 @@ app.post('/api/messages', authMiddleware, (req, res) => {
   res.json(newMessage);
 });
 
-app.get('/api/conversations', authMiddleware, (req, res) => {
+app.get(`${API_PREFIX}/conversations`, authMiddleware, (req, res) => {
   const messages = readJson('messages.json');
   const users = readJson('users.json');
   const myId = req.user.id;
@@ -282,7 +291,7 @@ app.get('/api/conversations', authMiddleware, (req, res) => {
   res.json(conversations);
 });
 
-app.post('/api/exchanges', authMiddleware, (req, res) => {
+app.post(`${API_PREFIX}/exchanges`, authMiddleware, (req, res) => {
   const { partnerId, skills } = req.body;
 
   if (!partnerId || !skills) {
@@ -307,7 +316,7 @@ app.post('/api/exchanges', authMiddleware, (req, res) => {
   res.json(newExchange);
 });
 
-app.put('/api/exchanges/:id/confirm', authMiddleware, (req, res) => {
+app.put(`${API_PREFIX}/exchanges/:id/confirm`, authMiddleware, (req, res) => {
   const exchanges = readJson('exchanges.json');
   const index = exchanges.findIndex(e => e.id === req.params.id);
   if (index === -1) {
@@ -339,7 +348,7 @@ app.put('/api/exchanges/:id/confirm', authMiddleware, (req, res) => {
   res.json(exchange);
 });
 
-app.get('/api/exchanges', authMiddleware, (req, res) => {
+app.get(`${API_PREFIX}/exchanges`, authMiddleware, (req, res) => {
   const exchanges = readJson('exchanges.json');
   const myExchanges = exchanges.filter(e =>
     e.initiatorId === req.user.id || e.partnerId === req.user.id
@@ -347,7 +356,7 @@ app.get('/api/exchanges', authMiddleware, (req, res) => {
   res.json(myExchanges);
 });
 
-app.post('/api/reviews', authMiddleware, (req, res) => {
+app.post(`${API_PREFIX}/reviews`, authMiddleware, (req, res) => {
   const { exchangeId, targetUserId, rating, comment } = req.body;
 
   if (!exchangeId || !targetUserId || !rating) {
@@ -412,7 +421,7 @@ app.get('/api/reviews/:userId', (req, res) => {
   res.json(reviewsWithUser);
 });
 
-app.get('/api/stats/popular-skills', (req, res) => {
+app.get(`${API_PREFIX}/stats/popular-skills`, (req, res) => {
   const skills = readJson('skills.json');
   const skillCount = {};
 
@@ -437,7 +446,7 @@ app.get('/api/stats/popular-skills', (req, res) => {
   res.json(sorted);
 });
 
-app.get('/api/stats/success-rate', (req, res) => {
+app.get(`${API_PREFIX}/stats/success-rate`, (req, res) => {
   const exchanges = readJson('exchanges.json');
   const total = exchanges.length;
   const completed = exchanges.filter(e => e.status === 'completed').length;
@@ -455,12 +464,12 @@ app.get('/api/stats/success-rate', (req, res) => {
   });
 });
 
-app.get('/api/skill-categories', (req, res) => {
+app.get(`${API_PREFIX}/skill-categories`, (req, res) => {
   const categories = readJson('skillCategories.json');
   res.json(categories);
 });
 
-app.get('/api/users/:userId', (req, res) => {
+app.get(`${API_PREFIX}/users/:userId`, (req, res) => {
   const users = readJson('users.json');
   const skills = readJson('skills.json');
   const user = users.find(u => u.id === req.params.userId);
@@ -476,7 +485,7 @@ app.get('/api/users/:userId', (req, res) => {
   });
 });
 
-app.put('/api/skill-tree', authMiddleware, (req, res) => {
+app.put(`${API_PREFIX}/skill-tree`, authMiddleware, (req, res) => {
   const users = readJson('users.json');
   const userIndex = users.findIndex(u => u.id === req.user.id);
   if (userIndex === -1) {
@@ -488,7 +497,7 @@ app.put('/api/skill-tree', authMiddleware, (req, res) => {
   res.json({ skillTree: users[userIndex].skillTree });
 });
 
-app.get('/api/users', authMiddleware, (req, res) => {
+app.get(`${API_PREFIX}/users`, authMiddleware, (req, res) => {
   const users = readJson('users.json');
   const { minRating, city, skill } = req.query;
   let filtered = users.map(u => {
@@ -516,5 +525,12 @@ app.get('/api/users', authMiddleware, (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Skill Swap Server running on http://localhost:${PORT}`);
+  const protocol = process.env.BACKEND_PROTOCOL || 'http';
+  const host = process.env.BACKEND_HOST || 'localhost';
+  console.log(`\n========================================`);
+  console.log(`  Skill Swap Server`);
+  console.log(`  Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`  Address: ${protocol}://${host}:${PORT}`);
+  console.log(`  API Prefix: ${API_PREFIX}`);
+  console.log(`========================================\n`);
 });

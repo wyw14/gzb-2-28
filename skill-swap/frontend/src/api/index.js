@@ -1,7 +1,9 @@
 import axios from 'axios'
 
+const API_PREFIX = import.meta.env.VITE_API_PREFIX || '/api'
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: API_PREFIX,
   timeout: 10000
 })
 
